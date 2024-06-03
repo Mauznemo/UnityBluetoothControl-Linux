@@ -1,39 +1,17 @@
-﻿/*
-Copyright 2015 Pim de Witte All Rights Reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
 
-namespace PimDeWitte.UnityMainThreadDispatcher {
-	/// Author: Pim de Witte (pimdewitte.com) and contributors, https://github.com/PimDeWitte/UnityMainThreadDispatcher
-	/// <summary>
-	/// A thread-safe class which holds a queue with actions to execute on the next Update() method. It can be used to make calls to the main thread for
-	/// things such as UI Manipulation in Unity. It was developed for use in combination with the Firebase Unity plugin, which uses separate threads for event handling
-	/// </summary>
-	public class UnityMainThreadDispatcher : MonoBehaviour {
+public class UnityMainThreadDispatcher : MonoBehaviour {
 
-		private static readonly Queue<Action> _executionQueue = new Queue<Action>();
+		private static readonly Queue<Action> executionQueue = new Queue<Action>();
 
 		public void Update() {
-			lock(_executionQueue) {
-				while (_executionQueue.Count > 0) {
-					_executionQueue.Dequeue().Invoke();
+			lock(executionQueue) {
+				while (executionQueue.Count > 0) {
+					executionQueue.Dequeue().Invoke();
 				}
 			}
 		}
@@ -43,8 +21,8 @@ namespace PimDeWitte.UnityMainThreadDispatcher {
 		/// </summary>
 		/// <param name="action">IEnumerator function that will be executed from the main thread.</param>
 		public void Enqueue(IEnumerator action) {
-			lock (_executionQueue) {
-				_executionQueue.Enqueue (() => {
+			lock (executionQueue) {
+				executionQueue.Enqueue (() => {
 					StartCoroutine (action);
 				});
 			}
@@ -91,31 +69,30 @@ namespace PimDeWitte.UnityMainThreadDispatcher {
 		}
 
 
-		private static UnityMainThreadDispatcher _instance = null;
+		private static UnityMainThreadDispatcher Instance = null;
 
 		public static bool Exists() {
-			return _instance != null;
+			return Instance != null;
 		}
 
-		public static UnityMainThreadDispatcher Instance() {
+		public static UnityMainThreadDispatcher GetInstance() {
 			if (!Exists ()) {
 				throw new Exception ("UnityMainThreadDispatcher could not find the UnityMainThreadDispatcher object. Please ensure you have added the MainThreadExecutor Prefab to your scene.");
 			}
-			return _instance;
+			return Instance;
 		}
 
 
 		void Awake() {
-			if (_instance == null) {
-				_instance = this;
+			if (Instance == null) {
+				Instance = this;
 				DontDestroyOnLoad(this.gameObject);
 			}
 		}
 
 		void OnDestroy() {
-				_instance = null;
+				Instance = null;
 		}
 
 
 	}
-}

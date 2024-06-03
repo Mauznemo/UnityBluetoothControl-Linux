@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Mauznemo.LinuxBluetooth;
 
 public class DeviceEntry : MonoBehaviour
 {
@@ -61,10 +62,17 @@ public class DeviceEntry : MonoBehaviour
         BluetoothManager.OnRemoveDevice += OnRemoveDevice;
     }
 
+    private void OnDestroy()
+    {
+        BluetoothManager.OnUpdateUI -= UpdateStats;
+        BluetoothManager.OnRemoveDevice -= OnRemoveDevice;
+    }
+
     private void OnRemoveDevice(string obj)
     {
         if (obj == device.macAddress)
         {
+            BluetoothManager.Instance.RemoveDeviceFromList(obj);
             Debug.Log("Removed: " + obj);
             Destroy(gameObject);
         }

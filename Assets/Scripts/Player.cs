@@ -1,9 +1,7 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Mauznemo.LinuxBluetooth;
 
 public class Player : MonoBehaviour
 {
@@ -20,19 +18,19 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         previousButton.onClick.AddListener(() => {
-            BluetoothManager.Instance.SendPlayerCommand("previous");
+            BluetoothManager.Instance.PlayerPrevious();
         });
         nextButton.onClick.AddListener(() => {
-            BluetoothManager.Instance.SendPlayerCommand("next");
+            BluetoothManager.Instance.PlayerNext();
         });
         playButton.onClick.AddListener(() => {
             if(playing)
             {
-                BluetoothManager.Instance.SendPlayerCommand("pause");
+                BluetoothManager.Instance.PlayerPause();
             }
             else
             {
-                BluetoothManager.Instance.SendPlayerCommand("play");
+                BluetoothManager.Instance.PlayerPlay();
             }
         });
     }
